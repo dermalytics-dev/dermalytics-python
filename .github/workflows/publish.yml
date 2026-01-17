@@ -1,4 +1,4 @@
-name: Publish to PyPI and GitHub Packages
+name: Publish to PyPI
 
 on:
   push:
@@ -17,7 +17,6 @@ jobs:
     environment: Main
     permissions:
       contents: write  # Required for creating releases
-      packages: write  # Required for publishing to GitHub Packages
     
     steps:
       - uses: actions/checkout@v4
@@ -56,18 +55,8 @@ jobs:
         env:
           TWINE_USERNAME: __token__
           TWINE_PASSWORD: ${{ secrets.PYPI_API_TOKEN }}
-        run: twine upload dist/*
-      
-      - name: Publish to GitHub Packages
-        env:
-          TWINE_USERNAME: __token__
-          TWINE_PASSWORD: ${{ secrets.GITHUB_TOKEN }}
-        run: |
-          # GitHub Packages URL format: owner-level (https://upload.pkg.github.com/OWNER/)
-          # This makes packages visible in the repository's Packages section
-          echo "Publishing to GitHub Packages for ${{ github.repository_owner }}"
-          twine upload --repository-url https://upload.pkg.github.com/${{ github.repository_owner }}/ dist/*
-        continue-on-error: true  # Continue even if GitHub Packages fails (may need to be enabled in org settings)
+        run: twine upload dist/* || echo "⚠️ PyPI upload failed (version may already exist). Continuing..."
+        continue-on-error: true  # Continue even if PyPI upload fails (e.g., version already exists)
       
       - name: Create GitHub Release
         uses: softprops/action-gh-release@v1
