@@ -63,7 +63,8 @@ jobs:
           TWINE_USERNAME: __token__
           TWINE_PASSWORD: ${{ secrets.GITHUB_TOKEN }}
         run: |
-          twine upload --repository-url https://upload.pkg.github.com/dermalytics-dev/dermalytics-python dist/*
+          # GitHub Packages URL format for repository-scoped packages
+          twine upload --repository-url https://upload.pkg.github.com/${{ github.repository }} dist/*
       
       - name: Create GitHub Release
         uses: softprops/action-gh-release@v1
