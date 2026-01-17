@@ -63,8 +63,11 @@ jobs:
           TWINE_USERNAME: __token__
           TWINE_PASSWORD: ${{ secrets.GITHUB_TOKEN }}
         run: |
-          # GitHub Packages URL format for repository-scoped packages
-          twine upload --repository-url https://upload.pkg.github.com/${{ github.repository }} dist/*
+          # GitHub Packages URL format: owner-level (https://upload.pkg.github.com/OWNER/)
+          # This makes packages visible in the repository's Packages section
+          echo "Publishing to GitHub Packages for ${{ github.repository_owner }}"
+          twine upload --repository-url https://upload.pkg.github.com/${{ github.repository_owner }}/ dist/*
+        continue-on-error: true  # Continue even if GitHub Packages fails (may need to be enabled in org settings)
       
       - name: Create GitHub Release
         uses: softprops/action-gh-release@v1
