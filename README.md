@@ -4,7 +4,7 @@ Python SDK for the [Dermalytics API](https://dermalytics.dev) - Skincare Ingredi
 
 ## ⚠️ Status
 
-This SDK is currently a **placeholder**. Full implementation coming soon. All methods will raise `NotImplementedError` until the SDK is fully implemented.
+This SDK is currently in **development** and **alpha testing**. The API is functional but may have breaking changes in future versions. Use with caution in production environments.
 
 ## Installation
 
@@ -23,6 +23,14 @@ client = Dermalytics(api_key="your_api_key_here")
 # Get ingredient details
 ingredient = client.get_ingredient("niacinamide")
 print(ingredient)
+# {
+#     "name": "niacinamide",
+#     "severity": "safe",
+#     "description": "A form of vitamin B3",
+#     "category": {"name": "Vitamins", "slug": "vitamins"},
+#     "condition_safeties": [],
+#     "synonyms": ["nicotinamide"]
+# }
 
 # Analyze a product
 analysis = client.analyze_product([
@@ -33,6 +41,11 @@ analysis = client.analyze_product([
     "Hyaluronic Acid"
 ])
 print(analysis)
+# {
+#     "safety_status": "safe",
+#     "ingredients": [...],
+#     "warnings": []
+# }
 ```
 
 ## API Reference
@@ -46,7 +59,7 @@ Initialize the Dermalytics API client.
 - `base_url` (str, optional): Base URL for the API (defaults to `https://api.dermalytics.dev`)
 
 **Raises:**
-- `NotImplementedError`: This SDK is currently a placeholder
+- `ValidationError`: If API key is missing or invalid
 
 ### `get_ingredient(name: str) -> Ingredient`
 
@@ -65,9 +78,11 @@ Get detailed information about a specific ingredient.
   - `synonyms` (list): List of alternative names for the ingredient
 
 **Raises:**
-- `NotImplementedError`: This SDK is currently a placeholder
+- `ValidationError`: If the ingredient name is invalid
 - `NotFoundError`: If the ingredient is not found
-- `APIError`: If the API returns an error
+- `AuthenticationError`: If authentication fails
+- `RateLimitError`: If rate limit is exceeded
+- `APIError`: For other API errors
 
 ### `analyze_product(ingredients: List[str]) -> ProductAnalysis`
 
@@ -83,13 +98,14 @@ Analyze a complete product formulation.
   - `warnings` (list): List of warnings for specific conditions or interactions
 
 **Raises:**
-- `NotImplementedError`: This SDK is currently a placeholder
-- `ValidationError`: If the request is invalid
-- `APIError`: If the API returns an error
+- `ValidationError`: If the ingredients array is invalid
+- `AuthenticationError`: If authentication fails
+- `RateLimitError`: If rate limit is exceeded
+- `APIError`: For other API errors
 
 ## Error Handling
 
-The SDK provides custom exception classes:
+The SDK provides comprehensive error handling with specific error classes for different scenarios:
 
 ```python
 from dermalytics import (
@@ -107,9 +123,24 @@ except NotFoundError:
     print("Ingredient not found")
 except AuthenticationError:
     print("Invalid API key")
+except RateLimitError:
+    print("Rate limit exceeded")
+except ValidationError as e:
+    print(f"Invalid input: {e.message}")
 except APIError as e:
-    print(f"API error: {e}")
+    print(f"API error: {e.message}")
+except DermalyticsError as e:
+    print(f"Dermalytics error: {e.message}")
 ```
+
+### Error Classes
+
+- `DermalyticsError` - Base error class for all SDK errors
+- `APIError` - General API errors (server errors, network issues, invalid responses)
+- `AuthenticationError` - Authentication failures (401, 403)
+- `NotFoundError` - Resource not found (404)
+- `RateLimitError` - Rate limit exceeded (429)
+- `ValidationError` - Invalid request data (400, invalid input parameters)
 
 ## Development
 
@@ -148,64 +179,6 @@ black dermalytics tests
 ```bash
 mypy dermalytics
 ```
-
-## Publishing to PyPI
-
-### Prerequisites
-
-1. Create a PyPI account at https://pypi.org/account/register/
-2. Install build tools:
-```bash
-pip install build twine
-```
-
-3. Configure credentials in `~/.pypirc`:
-```ini
-[distutils]
-index-servers =
-    pypi
-
-[pypi]
-username = __token__
-password = pypi-your-api-token-here
-```
-
-### Build and Upload
-
-1. Update version in `setup.py` and `pyproject.toml`
-
-2. Build the package:
-```bash
-python -m build
-```
-
-3. Check the build:
-```bash
-twine check dist/*
-```
-
-4. Upload to PyPI:
-```bash
-twine upload dist/*
-```
-
-5. Upload to TestPyPI (for testing):
-```bash
-twine upload --repository testpypi dist/*
-```
-
-### Version Management
-
-Update the version in both:
-- `setup.py`: `version="0.1.0"`
-- `pyproject.toml`: `version = "0.1.0"`
-- `dermalytics/__init__.py`: `__version__ = "0.1.0"`
-
-Follow [Semantic Versioning](https://semver.org/):
-- `MAJOR.MINOR.PATCH` (e.g., `1.0.0`)
-- MAJOR: Breaking changes
-- MINOR: New features (backward compatible)
-- PATCH: Bug fixes (backward compatible)
 
 ## Contributing
 

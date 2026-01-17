@@ -31,7 +31,9 @@ setup(
         "Topic :: Software Development :: Libraries :: Python Modules",
     ],
     python_requires=">=3.8",
-    install_requires=[],
+    install_requires=[
+        "requests>=2.31.0",
+    ],
     extras_require={
         "dev": [
             "pytest>=8.4.2",
