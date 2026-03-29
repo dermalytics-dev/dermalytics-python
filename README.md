@@ -29,10 +29,14 @@ print(ingredient)
 # {
 #     "name": "niacinamide",
 #     "severity": "safe",
-#     "description": "A form of vitamin B3",
-#     "category": "Vitamins",
+#     "description": "...",
+#     "comedogenicity": 0,
+#     "irritancy": 0,
+#     "formula": None,
+#     "category": "Vitamins",  # or null
 #     "synonyms": ["nicotinamide"],
 #     "credits_remaining": 99,
+#     # ... cas_no, ec_no, ph_eur_name, functions, etc.
 # }
 
 # Analyze a product
@@ -46,7 +50,15 @@ analysis = client.analyze_product([
 print(analysis)
 # {
 #     "safety_status": "safe",
-#     "ingredients": [{"name": "Aqua", "found": True, "severity": "safe", "category": "Solvent"}],
+#     "ingredients": [
+#         {
+#             "name": "Aqua",
+#             "found": True,
+#             "severity": "safe",
+#             "category": "Solvent",
+#             # ...same detail fields as lookup
+#         }
+#     ],
 #     "credits_remaining": 99,
 # }
 ```
@@ -72,20 +84,15 @@ Get detailed information about a specific ingredient.
 - `name` (str): The name of the ingredient to look up (e.g., "niacinamide")
 
 **Returns:**
-- `Ingredient`: Dictionary containing:
-  - `name` (str): Ingredient name
-  - `severity` (str): Safety rating (`safe`, `low_risk`, `moderate_risk`, `high_risk`)
-  - `description`, `comedogenicity`, `irritancy`, `formula`, `molecular_weight`, `cas_no`, `ec_no`, `ph_eur_name`, `functions`: Detail fields (see OpenAPI `IngredientResponse`)
-  - `category` (str, optional): Category label when present
-  - `synonyms` (list): Alternative names for the ingredient
-  - `credits_remaining` (int): Account credit balance after this request
+- `Ingredient`: Matches OpenAPI **`IngredientResponse`**: detail fields above plus `name`, `severity`, `category` (string or `null`), `synonyms`, and `credits_remaining`.
 
 **Raises:**
-- `ValidationError`: If the ingredient name is invalid
-- `NotFoundError`: If the ingredient is not found
-- `AuthenticationError`: If authentication fails
-- `RateLimitError`: If rate limit is exceeded
-- `APIError`: For other API errors
+- `ValidationError`: Invalid input or HTTP **400**
+- `AuthenticationError`: HTTP **401** / **403**
+- `InsufficientCreditsError`: HTTP **402**
+- `NotFoundError`: HTTP **404** (ingredient not found; no credit charged)
+- `RateLimitError`: HTTP **429** (if returned by the service)
+- `APIError`: Server or other errors (e.g. **500**)
 
 ### `analyze_product(ingredients: List[str]) -> ProductAnalysis`
 
@@ -95,16 +102,14 @@ Analyze a complete product formulation.
 - `ingredients` (List[str]): List of ingredient names in the product
 
 **Returns:**
-- `ProductAnalysis`: Dictionary containing:
-  - `safety_status` (str): Overall safety status of the formulation
-  - `ingredients` (list): Rows with `name`, `found`, `severity`, `category`, and the same detail fields as single-ingredient lookup
-  - `credits_remaining` (int): Account credit balance after this request
+- `ProductAnalysis`: Matches OpenAPI **`AnalyzeResponse`**: `safety_status` (**Severity**), `ingredients` (array of **`IngredientAnalysis`**), and `credits_remaining`.
 
 **Raises:**
-- `ValidationError`: If the ingredients array is invalid
-- `AuthenticationError`: If authentication fails
-- `RateLimitError`: If rate limit is exceeded
-- `APIError`: For other API errors
+- `ValidationError`: Invalid body or HTTP **400** (no analyze charge on validation error per API docs)
+- `AuthenticationError`: HTTP **401** / **403**
+- `InsufficientCreditsError`: HTTP **402**
+- `RateLimitError`: HTTP **429** (if returned by the service)
+- `APIError`: Server or other errors (e.g. **500**)
 
 ## Error Handling
 
@@ -115,6 +120,7 @@ from dermalytics import (
     DermalyticsError,
     APIError,
     AuthenticationError,
+    InsufficientCreditsError,
     NotFoundError,
     RateLimitError,
     ValidationError,
@@ -126,6 +132,8 @@ except NotFoundError:
     print("Ingredient not found")
 except AuthenticationError:
     print("Invalid API key")
+except InsufficientCreditsError:
+    print("Not enough credits")
 except RateLimitError:
     print("Rate limit exceeded")
 except ValidationError as e:
@@ -141,9 +149,12 @@ except DermalyticsError as e:
 - `DermalyticsError` - Base error class for all SDK errors
 - `APIError` - General API errors (server errors, network issues, invalid responses)
 - `AuthenticationError` - Authentication failures (401, 403)
+- `InsufficientCreditsError` - Insufficient credits (402)
 - `NotFoundError` - Resource not found (404)
 - `RateLimitError` - Rate limit exceeded (429)
 - `ValidationError` - Invalid request data (400, invalid input parameters)
+
+API error bodies follow **`ErrorResponse`**: nested `error` with at least `code` and `message` (and optional `type`). The client surfaces the message string on the exception.
 
 ## Development
 
