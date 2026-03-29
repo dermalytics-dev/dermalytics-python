@@ -37,6 +37,7 @@ Homepage = "https://github.com/dermalytics-dev/dermalytics-python"
 Documentation = "https://docs.dermalytics.dev"
 Repository = "https://github.com/dermalytics-dev/dermalytics-python"
 Issues = "https://github.com/dermalytics-dev/dermalytics-python/issues"
+PyPI = "https://pypi.org/project/dermalytics/"
 
 [tool.setuptools]
 packages = ["dermalytics"]

@@ -1,10 +1,13 @@
 # Dermalytics Python SDK
 
+[![PyPI version](https://img.shields.io/pypi/v/dermalytics.svg)](https://pypi.org/project/dermalytics/)
+[![Python versions](https://img.shields.io/pypi/pyversions/dermalytics.svg)](https://pypi.org/project/dermalytics/)
+
 Python SDK for the [Dermalytics API](https://dermalytics.dev) - Skincare Ingredient Analysis and Safety Ratings.
 
 ## ⚠️ Status
 
-This SDK is currently in **development** and **alpha testing**. The API is functional but may have breaking changes in future versions. Use with caution in production environments.
+This SDK is currently in **alpha**. The API is functional but may have breaking changes in future versions. Use with caution in production environments.
 
 ## Installation
 
@@ -207,10 +210,10 @@ You must:
 
 ## Links
 
+- [PyPI — dermalytics](https://pypi.org/project/dermalytics/)
 - [Dermalytics API Documentation](https://docs.dermalytics.dev)
 - [GitHub Repository](https://github.com/dermalytics-dev/dermalytics-python)
 - [Issue Tracker](https://github.com/dermalytics-dev/dermalytics-python/issues)
-- [PyPI Package](https://pypi.org/project/dermalytics/)
 
 ## Support
 
