@@ -61,9 +61,17 @@ def test_get_ingredient_success(mock_get):
         "name": "niacinamide",
         "severity": "safe",
         "description": "A form of vitamin B3",
-        "category": {"name": "Vitamins", "slug": "vitamins"},
-        "condition_safeties": [],
+        "comedogenicity": None,
+        "irritancy": None,
+        "formula": None,
+        "molecular_weight": None,
+        "cas_no": None,
+        "ec_no": None,
+        "ph_eur_name": None,
+        "functions": [],
+        "category": "Vitamins",
         "synonyms": ["nicotinamide"],
+        "credits_remaining": 99,
     }
     mock_get.return_value = mock_response
     
@@ -85,9 +93,18 @@ def test_get_ingredient_with_encoding(mock_get):
     mock_response.json.return_value = {
         "name": "salicylic acid",
         "severity": "low_risk",
-        "category": {"name": "Acids", "slug": "acids"},
-        "condition_safeties": [],
+        "description": None,
+        "comedogenicity": None,
+        "irritancy": None,
+        "formula": None,
+        "molecular_weight": None,
+        "cas_no": None,
+        "ec_no": None,
+        "ph_eur_name": None,
+        "functions": [],
+        "category": "Acids",
         "synonyms": [],
+        "credits_remaining": 98,
     }
     mock_get.return_value = mock_response
     
@@ -165,9 +182,23 @@ def test_analyze_product_success(mock_post):
     mock_response.json.return_value = {
         "safety_status": "safe",
         "ingredients": [
-            {"name": "Aqua", "severity": "safe", "category": "Water"}
+            {
+                "name": "Aqua",
+                "found": True,
+                "severity": "safe",
+                "category": "Water",
+                "description": None,
+                "comedogenicity": None,
+                "irritancy": None,
+                "formula": None,
+                "molecular_weight": None,
+                "cas_no": None,
+                "ec_no": None,
+                "ph_eur_name": None,
+                "functions": [],
+            }
         ],
-        "warnings": [],
+        "credits_remaining": 97,
     }
     mock_post.return_value = mock_response
     
@@ -175,6 +206,7 @@ def test_analyze_product_success(mock_post):
     analysis = client.analyze_product(["Aqua", "Glycerin"])
     
     assert analysis["safety_status"] == "safe"
+    assert analysis["credits_remaining"] == 97
     mock_post.assert_called_once()
     call_args = mock_post.call_args
     assert call_args[1]["json"] == {"ingredients": ["Aqua", "Glycerin"]}

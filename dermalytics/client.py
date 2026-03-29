@@ -41,7 +41,7 @@ class Dermalytics:
         """Make an HTTP request to the API with proper error handling.
         
         Args:
-            endpoint: API endpoint path (e.g., "/ingredients/niacinamide")
+            endpoint: API endpoint path (e.g., "/v1/ingredients/niacinamide")
             method: HTTP method (default: "GET")
             data: Optional data to send in request body (for POST requests)
             
@@ -135,7 +135,7 @@ class Dermalytics:
             name: The name of the ingredient to look up
             
         Returns:
-            Ingredient information including safety ratings, category, and condition safeties
+            Ingredient information including safety rating and category
             
         Raises:
             ValidationError: If the ingredient name is invalid
@@ -157,7 +157,7 @@ class Dermalytics:
             ingredients: List of ingredient names in the product
             
         Returns:
-            Product analysis including safety status, ingredient details, and warnings
+            Product analysis including safety status and per-ingredient results
             
         Raises:
             ValidationError: If the ingredients array is invalid

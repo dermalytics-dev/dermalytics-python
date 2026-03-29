@@ -27,9 +27,9 @@ print(ingredient)
 #     "name": "niacinamide",
 #     "severity": "safe",
 #     "description": "A form of vitamin B3",
-#     "category": {"name": "Vitamins", "slug": "vitamins"},
-#     "condition_safeties": [],
-#     "synonyms": ["nicotinamide"]
+#     "category": "Vitamins",
+#     "synonyms": ["nicotinamide"],
+#     "credits_remaining": 99,
 # }
 
 # Analyze a product
@@ -43,8 +43,8 @@ analysis = client.analyze_product([
 print(analysis)
 # {
 #     "safety_status": "safe",
-#     "ingredients": [...],
-#     "warnings": []
+#     "ingredients": [{"name": "Aqua", "found": True, "severity": "safe", "category": "Solvent"}],
+#     "credits_remaining": 99,
 # }
 ```
 
@@ -71,11 +71,11 @@ Get detailed information about a specific ingredient.
 **Returns:**
 - `Ingredient`: Dictionary containing:
   - `name` (str): Ingredient name
-  - `severity` (str): Safety rating (e.g., "safe", "low_risk", "moderate_risk", "high_risk")
-  - `description` (str, optional): Description of the ingredient
-  - `category` (dict): Category information with `name` and `slug`
-  - `condition_safeties` (list): List of condition-specific safety information
-  - `synonyms` (list): List of alternative names for the ingredient
+  - `severity` (str): Safety rating (`safe`, `low_risk`, `moderate_risk`, `high_risk`)
+  - `description`, `comedogenicity`, `irritancy`, `formula`, `molecular_weight`, `cas_no`, `ec_no`, `ph_eur_name`, `functions`: Detail fields (see OpenAPI `IngredientResponse`)
+  - `category` (str, optional): Category label when present
+  - `synonyms` (list): Alternative names for the ingredient
+  - `credits_remaining` (int): Account credit balance after this request
 
 **Raises:**
 - `ValidationError`: If the ingredient name is invalid
@@ -93,9 +93,9 @@ Analyze a complete product formulation.
 
 **Returns:**
 - `ProductAnalysis`: Dictionary containing:
-  - `safety_status` (str): Overall safety status of the product
-  - `ingredients` (list): List of analyzed ingredients with their safety ratings
-  - `warnings` (list): List of warnings for specific conditions or interactions
+  - `safety_status` (str): Overall safety status of the formulation
+  - `ingredients` (list): Rows with `name`, `found`, `severity`, `category`, and the same detail fields as single-ingredient lookup
+  - `credits_remaining` (int): Account credit balance after this request
 
 **Raises:**
 - `ValidationError`: If the ingredients array is invalid
