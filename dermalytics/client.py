@@ -9,6 +9,7 @@ import requests
 from .exceptions import (
     APIError,
     AuthenticationError,
+    InsufficientCreditsError,
     NotFoundError,
     RateLimitError,
     ValidationError,
@@ -103,18 +104,19 @@ class Dermalytics:
         try:
             error_data = response.json()
             if isinstance(error_data, dict):
-                error_message = (
-                    error_data.get("message")
-                    or error_data.get("error")
-                    or error_message
-                )
+                error_obj = error_data.get("error")
+                if isinstance(error_obj, dict):
+                    error_message = error_obj.get("message") or error_message
+                else:
+                    error_message = error_data.get("message") or error_message
         except (ValueError, json.JSONDecodeError):
-            # If JSON parsing fails, use the status text
             pass
-        
+
         status_code = response.status_code
         if status_code in (401, 403):
             raise AuthenticationError(error_message)
+        elif status_code == 402:
+            raise InsufficientCreditsError(error_message)
         elif status_code == 404:
             raise NotFoundError(error_message)
         elif status_code == 429:
@@ -146,7 +148,7 @@ class Dermalytics:
             raise ValidationError("Ingredient name is required")
         
         encoded_name = quote(name.strip(), safe="")
-        return self._request(f"/ingredients/{encoded_name}")  # type: ignore
+        return self._request(f"/v1/ingredients/{encoded_name}")  # type: ignore
     
     def analyze_product(self, ingredients: List[str]) -> ProductAnalysis:
         """Analyze a complete product formulation.
@@ -169,5 +171,5 @@ class Dermalytics:
             )
         
         return self._request(
-            "/analyze", method="POST", data={"ingredients": ingredients}
+            "/v1/analyze", method="POST", data={"ingredients": ingredients}
         )  # type: ignore

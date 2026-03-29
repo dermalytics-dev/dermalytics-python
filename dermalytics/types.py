@@ -21,16 +21,35 @@ class Ingredient(TypedDict):
     name: str
     severity: str
     description: Optional[str]
-    category: Category
+    comedogenicity: Optional[int]
+    irritancy: Optional[int]
+    formula: Optional[str]
+    molecular_weight: Optional[float]
+    cas_no: Optional[str]
+    ec_no: Optional[str]
+    ph_eur_name: Optional[str]
+    functions: List[str]
+    categories: List[Category]
     condition_safeties: List[ConditionSafety]
     synonyms: List[str]
+    credits_remaining: int
 
 
 class IngredientAnalysis(TypedDict):
     """Ingredient analysis result."""
     name: str
+    found: bool
     severity: str
-    category: str
+    category: Optional[str]
+    description: Optional[str]
+    comedogenicity: Optional[int]
+    irritancy: Optional[int]
+    formula: Optional[str]
+    molecular_weight: Optional[float]
+    cas_no: Optional[str]
+    ec_no: Optional[str]
+    ph_eur_name: Optional[str]
+    functions: List[str]
 
 
 class Warning(TypedDict):
@@ -46,3 +65,4 @@ class ProductAnalysis(TypedDict):
     safety_status: str
     ingredients: List[IngredientAnalysis]
     warnings: List[Warning]
+    credits_remaining: int

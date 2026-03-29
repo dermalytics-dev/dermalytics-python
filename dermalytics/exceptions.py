@@ -42,3 +42,10 @@ class ValidationError(DermalyticsError):
 
     def __init__(self, message: str = ""):
         super().__init__(message)
+
+
+class InsufficientCreditsError(DermalyticsError):
+    """Raised when the account has insufficient credits."""
+
+    def __init__(self, message: str = ""):
+        super().__init__(message)
