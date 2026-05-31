@@ -5,6 +5,12 @@
 
 Python SDK for the [Dermalytics API](https://dermalytics.dev) - Skincare Ingredient Analysis and Safety Ratings.
 
+Example: `/v1/ingredients/niacinamide` returns structured cosmetic ingredient data: safety metadata, functions, synonyms, CAS/EC fields, and `trait_flags`.
+
+Built for apps that need ingredient intelligence without scraping.
+
+API docs: <https://api.dermalytics.dev/docs>
+
 ## ⚠️ Status
 
 This SDK is currently in **alpha**. The API is functional but may have breaking changes in future versions. Use with caution in production environments.
