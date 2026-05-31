@@ -1,6 +1,19 @@
 """Type definitions for the Dermalytics SDK."""
 
-from typing import TypedDict, List, Optional
+from typing import TypedDict, List, Literal, Optional
+
+
+TraitFlag = Literal[
+    "drying_alcohol",
+    "fragrance",
+    "paraben",
+    "silicone",
+    "sulfate",
+    "oil",
+    "fungal_acne_trigger",
+    "reef_unsafe",
+    "eu_allergen",
+]
 
 
 class Ingredient(TypedDict):
@@ -17,6 +30,7 @@ class Ingredient(TypedDict):
     ec_no: Optional[str]
     ph_eur_name: Optional[str]
     functions: List[str]
+    trait_flags: List[TraitFlag]
     category: Optional[str]
     synonyms: List[str]
     credits_remaining: int
@@ -38,6 +52,7 @@ class IngredientAnalysis(TypedDict):
     ec_no: Optional[str]
     ph_eur_name: Optional[str]
     functions: List[str]
+    trait_flags: List[TraitFlag]
 
 
 class ProductAnalysis(TypedDict):

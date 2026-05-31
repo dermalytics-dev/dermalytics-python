@@ -69,6 +69,7 @@ def test_get_ingredient_success(mock_get):
         "ec_no": None,
         "ph_eur_name": None,
         "functions": [],
+        "trait_flags": [],
         "category": "Vitamins",
         "synonyms": ["nicotinamide"],
         "credits_remaining": 99,
@@ -80,6 +81,7 @@ def test_get_ingredient_success(mock_get):
     
     assert ingredient["name"] == "niacinamide"
     assert ingredient["severity"] == "safe"
+    assert ingredient["trait_flags"] == []
     mock_get.assert_called_once()
     call_args = mock_get.call_args
     assert "Bearer test_key" in call_args[1]["headers"]["Authorization"]
@@ -102,6 +104,7 @@ def test_get_ingredient_with_encoding(mock_get):
         "ec_no": None,
         "ph_eur_name": None,
         "functions": [],
+        "trait_flags": [],
         "category": "Acids",
         "synonyms": [],
         "credits_remaining": 98,
@@ -196,6 +199,7 @@ def test_analyze_product_success(mock_post):
                 "ec_no": None,
                 "ph_eur_name": None,
                 "functions": [],
+                "trait_flags": ["fragrance"],
             }
         ],
         "credits_remaining": 97,
@@ -207,6 +211,7 @@ def test_analyze_product_success(mock_post):
     
     assert analysis["safety_status"] == "safe"
     assert analysis["credits_remaining"] == 97
+    assert analysis["ingredients"][0]["trait_flags"] == ["fragrance"]
     mock_post.assert_called_once()
     call_args = mock_post.call_args
     assert call_args[1]["json"] == {"ingredients": ["Aqua", "Glycerin"]}

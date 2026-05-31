@@ -36,6 +36,7 @@ print(ingredient)
 #     "category": "Vitamins",  # or null
 #     "synonyms": ["nicotinamide"],
 #     "credits_remaining": 99,
+#     "trait_flags": [],
 #     # ... cas_no, ec_no, ph_eur_name, functions, etc.
 # }
 
@@ -84,7 +85,7 @@ Get detailed information about a specific ingredient.
 - `name` (str): The name of the ingredient to look up (e.g., "niacinamide")
 
 **Returns:**
-- `Ingredient`: Matches OpenAPI **`IngredientResponse`**: detail fields above plus `name`, `severity`, `category` (string or `null`), `synonyms`, and `credits_remaining`.
+- `Ingredient`: Matches OpenAPI **`IngredientResponse`**: detail fields above, including `trait_flags`, plus `name`, `severity`, `category` (string or `null`), `synonyms`, and `credits_remaining`.
 
 **Raises:**
 - `ValidationError`: Invalid input or HTTP **400**
@@ -102,7 +103,7 @@ Analyze a complete product formulation.
 - `ingredients` (List[str]): List of ingredient names in the product
 
 **Returns:**
-- `ProductAnalysis`: Matches OpenAPI **`AnalyzeResponse`**: `safety_status` (**Severity**), `ingredients` (array of **`IngredientAnalysis`**), and `credits_remaining`.
+- `ProductAnalysis`: Matches OpenAPI **`AnalyzeResponse`**: `safety_status` (**Severity**), `ingredients` (array of **`IngredientAnalysis`**, including `trait_flags`), and `credits_remaining`.
 
 **Raises:**
 - `ValidationError`: Invalid body or HTTP **400** (no analyze charge on validation error per API docs)
