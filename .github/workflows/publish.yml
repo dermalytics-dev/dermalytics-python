@@ -40,6 +40,18 @@ jobs:
             echo "version=${{ github.event.inputs.version }}" >> $GITHUB_OUTPUT
           fi
       
+      - name: Verify release version
+        env:
+          RELEASE_VERSION: ${{ steps.get_version.outputs.version }}
+        run: |
+          python - <<'PYCODE'
+          import os, pathlib, re, tomllib
+          version = tomllib.loads(pathlib.Path("pyproject.toml").read_text())["project"]["version"]
+          assert version == os.environ["RELEASE_VERSION"], "Release tag must match package metadata"
+          for name in ["setup.py", "dermalytics/__init__.py"]:
+              assert re.search(r'(?:version|__version__)\s*=\s*"' + re.escape(version) + '"', pathlib.Path(name).read_text()), name
+          PYCODE
+
       - name: Install build dependencies
         run: |
           python -m pip install --upgrade pip
@@ -55,8 +67,7 @@ jobs:
         env:
           TWINE_USERNAME: __token__
           TWINE_PASSWORD: ${{ secrets.PYPI_API_TOKEN }}
-        run: twine upload dist/* || echo "⚠️ PyPI upload failed (version may already exist). Continuing..."
-        continue-on-error: true  # Continue even if PyPI upload fails (e.g., version already exists)
+        run: twine upload dist/*
       
       - name: Create GitHub Release
         uses: softprops/action-gh-release@v1
@@ -76,6 +87,8 @@ jobs:
             - `get_ingredient()` method for ingredient details
             - `analyze_product()` method for product analysis
             - Comprehensive error handling
+            - Ingredient and product search, product lookup
+            - Documented fields only, including nested responses
             - Type hints and TypedDict support
           draft: false
           prerelease: false

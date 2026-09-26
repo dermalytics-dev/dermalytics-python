@@ -3,6 +3,7 @@
 from unittest.mock import Mock, patch
 import pytest
 import requests
+from urllib.parse import urlparse, parse_qs
 
 from dermalytics import Dermalytics
 from dermalytics.exceptions import (
@@ -12,6 +13,50 @@ from dermalytics.exceptions import (
     RateLimitError,
     APIError,
 )
+
+
+@patch("dermalytics.client.requests.get")
+def test_search_products_encodes_filters_and_preserves_pagination(mock_get):
+    result = {"data": [{"name": "A&B", "brand": None}], "pagination": {"limit": 2, "offset": 0, "next_offset": 2}, "credits_remaining": 99}
+    mock_get.return_value = Mock(ok=True, json=Mock(return_value=result))
+    client = Dermalytics("fixture")
+    assert client.search_products(" A&B ", limit=2, brand="Example / Co", ingredient="Vitamin B3") == result
+    url = urlparse(mock_get.call_args[0][0])
+    assert url.path == "/v1/products"
+    assert parse_qs(url.query) == {"q": ["A&B"], "limit": ["2"], "offset": ["0"], "brand": ["Example / Co"], "ingredient": ["Vitamin B3"]}
+
+
+@patch("dermalytics.client.requests.get")
+def test_search_ingredients_empty_page(mock_get):
+    result = {"data": [], "pagination": {"limit": 20, "offset": 0, "next_offset": None}, "credits_remaining": 100}
+    mock_get.return_value = Mock(ok=True, json=Mock(return_value=result))
+    assert Dermalytics("fixture").search_ingredients("98-92-0") == result
+    assert "/v1/ingredients?q=98-92-0&" in mock_get.call_args[0][0]
+
+
+@patch("dermalytics.client.requests.get")
+def test_catalog_validation_happens_before_request(mock_get):
+    client = Dermalytics("fixture")
+    for options in [{"limit": 51}, {"limit": True}, {"offset": -1}, {"offset": 1.5}, {"brand": " "}]:
+        with pytest.raises(ValidationError):
+            client.search_products("cream", **options)
+    with pytest.raises(ValidationError):
+        client.search_ingredients("x")
+    with pytest.raises(ValidationError):
+        client.get_product("../private")
+    mock_get.assert_not_called()
+
+
+@patch("dermalytics.client.requests.get")
+def test_product_detail_and_unavailable_catalog(mock_get):
+    result = {"id": "f879d134-c8e3-4816-a7ad-a042508c44e5", "ingredients": [], "credits_remaining": 99}
+    mock_get.return_value = Mock(ok=True, json=Mock(return_value=result))
+    client = Dermalytics("fixture")
+    assert client.get_product(result["id"]) == result
+    assert mock_get.call_args[0][0].endswith("/v1/products/" + result["id"])
+    mock_get.return_value = Mock(ok=False, status_code=503, reason="Unavailable", json=Mock(return_value={"error": {"code": "CATALOG_UNAVAILABLE", "message": "Catalog not enabled"}}))
+    with pytest.raises(APIError, match="Catalog not enabled"):
+        client.search_products("cream")
 
 
 def test_client_initialization():
@@ -286,3 +331,46 @@ def test_server_error(mock_get):
     client = Dermalytics(api_key="test_key")
     with pytest.raises(APIError, match="Server error"):
         client.get_ingredient("niacinamide")
+
+@patch('dermalytics.client.requests.get')
+def test_no_key_omits_authorization_and_uses_small_page(mock_get):
+    mock_get.return_value = Mock(ok=True, json=lambda: {'data': [], 'pagination': {'limit': 3, 'offset': 0, 'next_offset': None}, 'credits_remaining': 0})
+    Dermalytics().search_products('cream')
+    assert 'limit=3' in mock_get.call_args[0][0]
+    assert 'Authorization' not in mock_get.call_args[1]['headers']
+
+
+@patch('dermalytics.client.requests.get')
+@patch('dermalytics.client.requests.post')
+def test_no_key_rejects_large_requests(mock_post, mock_get):
+    client = Dermalytics()
+    for action in [lambda: client.search_products('cream', limit=4), lambda: client.search_ingredients('Water', offset=3), lambda: client.analyze_product(['Water']*6)]:
+        with pytest.raises(ValidationError):
+            action()
+    mock_post.assert_not_called()
+    mock_get.assert_not_called()
+
+
+@patch('dermalytics.client.requests.get')
+def test_invalid_key_never_falls_back_to_anonymous(mock_get):
+    mock_get.return_value = Mock(ok=False, status_code=401, reason='Unauthorized', json=lambda: {'error': {'message': 'Invalid key'}})
+    with pytest.raises(AuthenticationError):
+        Dermalytics('bad').search_products('cream')
+    assert mock_get.call_count == 1
+
+
+@patch('dermalytics.client.requests.get')
+def test_signup_link_on_success_and_quota_error(mock_get):
+    client = Dermalytics()
+    signup = 'https://www.dermalytics.dev/dashboard'
+    data = {'data': [], 'pagination': {'limit': 3, 'offset': 0, 'next_offset': None}, 'credits_remaining': 0}
+    mock_get.return_value = Mock(ok=True, headers={'X-API-Key-URL': signup}, json=lambda: data)
+    client.search_products('cream')
+    assert client.signup_url == signup
+    mock_get.return_value = Mock(ok=False, status_code=429, reason='Too Many Requests', headers={'X-API-Key-URL': signup}, json=lambda: {'error': {'message': 'Register at ' + signup}})
+    with pytest.raises(RateLimitError, match='https://www.dermalytics.dev/dashboard'):
+        client.search_products('cream')
+    assert client.signup_url == signup
+    mock_get.return_value = Mock(ok=True, headers={}, json=lambda: data)
+    client.search_products('cream')
+    assert client.signup_url is None

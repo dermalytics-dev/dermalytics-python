@@ -7,7 +7,7 @@ with open("README.md", "r", encoding="utf-8") as fh:
 
 setup(
     name="dermalytics",
-    version="0.1.6",
+    version="1.0.0",
     author="Dermalytics",
     author_email="support@dermalytics.dev",
     description="Python SDK for the Dermalytics API - Skincare Ingredient Analysis",
@@ -16,7 +16,7 @@ setup(
     url="https://github.com/dermalytics-dev/dermalytics-python",
     packages=find_packages(),
     classifiers=[
-        "Development Status :: 3 - Alpha",
+        "Development Status :: 5 - Production/Stable",
         "Intended Audience :: Developers",
         "License :: OSI Approved :: MIT License",
         "Operating System :: OS Independent",

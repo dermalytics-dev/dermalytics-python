@@ -1,6 +1,7 @@
 """Dermalytics SDK for Python - Skincare Ingredient Analysis API."""
 
 from .client import Dermalytics
+from .types import IngredientSearchResponse, ProductSearchResponse, ProductResponse
 from .exceptions import (
     DermalyticsError,
     APIError,
@@ -11,9 +12,12 @@ from .exceptions import (
     ValidationError,
 )
 
-__version__ = "0.1.6"
+__version__ = "1.0.0"
 __all__ = [
     "Dermalytics",
+    "IngredientSearchResponse",
+    "ProductSearchResponse",
+    "ProductResponse",
     "DermalyticsError",
     "APIError",
     "AuthenticationError",

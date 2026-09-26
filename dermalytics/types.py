@@ -61,3 +61,59 @@ class ProductAnalysis(TypedDict):
     safety_status: str
     ingredients: List[IngredientAnalysis]
     credits_remaining: int
+
+
+class SearchPagination(TypedDict):
+    limit: int
+    offset: int
+    next_offset: Optional[int]
+
+
+class RatingsAvailable(TypedDict):
+    comedogenicity: bool
+    irritancy: bool
+
+
+class IngredientSearchItem(TypedDict):
+    id: str
+    name: str
+    cas_no: Optional[str]
+    ec_no: Optional[str]
+    functions: List[str]
+    ratings_available: RatingsAvailable
+    record_updated_at: str
+
+
+class ProductSummary(TypedDict):
+    id: str
+    name: str
+    brand: Optional[str]
+    category: Optional[str]
+    ingredients_count: int
+    area: Optional[Literal["face", "eyes", "lips", "body", "hair", "nails"]]
+    # Stored derived tags, not independently verified product claims.
+    traits_cache: List[str]
+    key_ingredient_tags: List[str]
+
+
+class ProductIngredientItem(TypedDict):
+    id: str
+    name: str
+    position: Optional[int]
+
+
+class IngredientSearchResponse(TypedDict):
+    data: List[IngredientSearchItem]
+    pagination: SearchPagination
+    credits_remaining: int
+
+
+class ProductSearchResponse(TypedDict):
+    data: List[ProductSummary]
+    pagination: SearchPagination
+    credits_remaining: int
+
+
+class ProductResponse(ProductSummary):
+    ingredients: List[ProductIngredientItem]
+    credits_remaining: int
