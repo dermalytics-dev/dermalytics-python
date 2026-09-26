@@ -2,7 +2,7 @@
 
 Search cosmetic products and ingredients, retrieve INCI lists, and analyze ingredient data with a typed Python client.
 
-[Documentation](https://www.dermalytics.dev/docs) · [Get an API key](https://www.dermalytics.dev/dashboard) · [OpenAPI](https://api.dermalytics.dev/openapi.json)
+[Package](https://pypi.org/project/dermalytics/) · [Documentation](https://www.dermalytics.dev/docs) · [Get an API key](https://www.dermalytics.dev/dashboard) · [OpenAPI](https://api.dermalytics.dev/openapi.json)
 
 ## Install
 
@@ -197,7 +197,7 @@ for product in page["data"]:
     print(product["name"])
 ```
 
-See [all response types](dermalytics/types.py) for ingredient lookup, analysis, product details and pagination.
+See [all response types](https://github.com/dermalytics-dev/dermalytics-python/blob/main/dermalytics/types.py) for ingredient lookup, analysis, product details and pagination.
 
 ## Develop
 
@@ -217,4 +217,4 @@ python -m build
 - [API reference and examples](https://www.dermalytics.dev/docs)
 - [Account, API keys and credits](https://www.dermalytics.dev/dashboard)
 - [Report an SDK issue](https://github.com/dermalytics-dev/dermalytics-python/issues)
-- [MIT license](LICENSE)
+- [MIT license](https://github.com/dermalytics-dev/dermalytics-python/blob/main/LICENSE)
